@@ -245,7 +245,7 @@ void loop()
     break;
 
   case CHECK:
-    Serial.print("CHECK ");
+    
     pos = changehead(&increment);
     
     int distance = checkObstacles();
@@ -262,28 +262,29 @@ void loop()
       Serial.println(" degress");
 
     }
-    if (distance > 5 & stopped)
+   if (distance > 5 && stopped)
     {
-      stopped = false;
-      Serial.print(pos);
-      Serial.println(" degress");
-      Serial.print("State set as GO_FORWARD ");
-        if (0 <= pos <= 45)
+        stopped = false;
+        Serial.print(pos);
+        Serial.println(" degrees");
+        Serial.print("State set as GO_FORWARD ");
+
+        if (pos >= 0 && pos <= 45)
         {
             STATE = GO_RIGHT;
             Serial.print("State set as GO_RIGHT ");
         }
-        else if (45 <= pos <= 135)
+        else if (pos >= 45 && pos <= 135)
         {
-          STATE = GO_FORWARD;
-          Serial.print("State set as GO_FORWARD ");
-        } 
-         else if (135 <= pos <= 185)
-        {
-          STATE = GO_LEFT;
-          Serial.print("State set as GO_LEFT ");
+            STATE = GO_FORWARD;
+            Serial.print("State set as GO_FORWARD ");
         }
-     }
+        else if (pos >= 135 && pos <= 185)
+        {
+            STATE = GO_LEFT;
+            Serial.print("State set as GO_LEFT ");
+        }
+    }
     delay(10);
     break;
   }

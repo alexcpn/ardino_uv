@@ -70,7 +70,7 @@ void moveServo(int &pos)
  */
 int checkObstacles()
 {
-  int distance=0;
+  int distance = 0;
   // Clears the trigPin condition
   digitalWrite(trigPin, LOW);
   delayMicroseconds(2);
@@ -116,8 +116,7 @@ int changehead(int *prev_incr)
   *prev_incr = increment;
 
   myservo.write(current_pos + increment);
-  delay(8);
-
+  
   return current_pos;
 }
 
@@ -126,13 +125,12 @@ int changehead(int *prev_incr)
  */
 void moveforward()
 {
- // Serial.print("Move forward ");
+  // Serial.print("Move forward ");
 
   motor_back_left.run(FORWARD);
   motor_front_right.run(FORWARD);
   motor_front_left.run(FORWARD);
   motor_back_right.run(FORWARD);
-
 }
 
 /**
@@ -141,7 +139,7 @@ void moveforward()
 void move_backwards()
 {
 
-  //Serial.print("Move back ");
+  // Serial.print("Move back ");
   motor_back_left.run(BACKWARD);
   motor_front_right.run(BACKWARD);
   motor_front_left.run(BACKWARD);
@@ -152,12 +150,11 @@ void move_backwards()
  */
 void move_left()
 {
-  //Serial.print("Move left ");
+  // Serial.print("Move left ");
   motor_back_left.run(BACKWARD);
   motor_front_left.run(BACKWARD);
   motor_back_right.run(FORWARD);
   motor_front_right.run(FORWARD);
-
 }
 
 /**
@@ -165,7 +162,7 @@ void move_left()
  */
 void move_right()
 {
-  //Serial.print("Move right ");
+  // Serial.print("Move right ");
   motor_back_left.run(FORWARD);
   motor_front_left.run(FORWARD);
   motor_back_right.run(BACKWARD);
@@ -198,72 +195,78 @@ int out = 1; // variable to detect distance
 int increment = 1;
 bool stopped = false;
 int pos = 0;
-int distance =0;
+int distance = 0;
 void loop()
 {
 
-  delay(1);
-  pos = changehead(&increment);
-  distance = checkObstacles();
-  
-  if (distance <= 5 && !stopped)
+  while (true)
   {
-    //Serial.print(distance);
-    //Serial.println(" centimeters");
-    stopped = true;
-    stop();
-   
-  }
-  if ((distance > 5 && stopped))
-  {
-    set_speed(150);
-    stopped = false;
-    //Serial.print(pos);
-    //Serial.println(" degrees");
-    if (pos >= 0 && pos <= 45)
-    {
-      STATE = GO_RIGHT;
-      //Serial.print("D>5: State set as GO_RIGHT ");
+    if (stopped) {
+      pos = changehead(&increment);
+    
     }
-    else if (pos >= 45 && pos <= 135)
+    distance = checkObstacles();
+
+    if (distance <= 5 && !stopped)
     {
+      Serial.print(distance);
+      Serial.println(" centimeters");
+      stopped = true;
+      stop();
+    }
+
+    if (distance > 5)
+    {
+
+      if (stopped)
+      {
+        set_speed(150);
+        Serial.print(distance);
+        Serial.println(" centimeters Starting againg");
+      }
+      stopped = false;
       STATE = GO_FORWARD;
-      //Serial.print("D>5: State set as GO_FORWARD ");
+      // Serial.print(pos);
+      // Serial.println(" degrees");
+      if (pos >= 0 && pos <= 45)
+      {
+        STATE = GO_RIGHT;
+        // Serial.print("D>5: State set as GO_RIGHT ");
+      }
+      else if (pos >= 135 && pos <= 185)
+      {
+        STATE = GO_LEFT;
+        // Serial.print("D>5: State set as GO_LEFT ");
+      }
     }
-    else if (pos >= 135 && pos <= 185)
+    if (distance <= 5 && stopped)
     {
-      STATE = GO_LEFT;
-      //Serial.print("D>5: State set as GO_LEFT ");
+      set_speed(150);
+      STATE = GO_BACK;
     }
-  }else if  (distance <= 5 && stopped)
-  {
-    set_speed(150);
-    STATE = GO_BACK;
-   
-  }
 
+    switch (STATE)
+    {
 
-  switch (STATE)
-  {
+    case GO_FORWARD:
+      // Serial.print("GO_FORWARD ");
+      moveforward();
+      break;
 
-  case GO_FORWARD:
-    //Serial.print("GO_FORWARD ");
-    moveforward();
-    break;
+    case GO_LEFT:
+      // Serial.print("GO_LEFT ");
+      move_left();
+      break;
 
-  case GO_LEFT:
-    //Serial.print("GO_LEFT ");
-    move_left();
-    break;
+    case GO_RIGHT:
+      // Serial.print("GO_RIGHT ");
+      move_right();
+      break;
 
-  case GO_RIGHT:
-    //Serial.print("GO_RIGHT ");
-    move_right();
-    break;
-
-  case GO_BACK:
-    //Serial.print("GO_BACK ");
-    move_backwards();
-    break;
+    case GO_BACK:
+      // Serial.print("GO_BACK ");
+      move_backwards();
+      break;
+    }
   }
 }

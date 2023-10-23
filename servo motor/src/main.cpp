@@ -126,7 +126,7 @@ int changehead(int *prev_incr)
  */
 void moveforward()
 {
-  Serial.print("Move forward ");
+ // Serial.print("Move forward ");
 
   motor_back_left.run(FORWARD);
   motor_front_right.run(FORWARD);
@@ -141,7 +141,7 @@ void moveforward()
 void move_backwards()
 {
 
-  Serial.print("Move back ");
+  //Serial.print("Move back ");
   motor_back_left.run(BACKWARD);
   motor_front_right.run(BACKWARD);
   motor_front_left.run(BACKWARD);
@@ -152,7 +152,7 @@ void move_backwards()
  */
 void move_left()
 {
-  Serial.print("Move left ");
+  //Serial.print("Move left ");
   motor_back_left.run(BACKWARD);
   motor_front_left.run(BACKWARD);
   motor_back_right.run(FORWARD);
@@ -165,7 +165,7 @@ void move_left()
  */
 void move_right()
 {
-  Serial.print("Move right ");
+  //Serial.print("Move right ");
   motor_back_left.run(FORWARD);
   motor_front_left.run(FORWARD);
   motor_back_right.run(BACKWARD);
@@ -183,7 +183,6 @@ void stop()
   // motor_front_right.run(RELEASE);
   // motor_front_left.run(RELEASE);
   // motor_back_right.run(RELEASE);
-  delay(10);
 }
 
 const int GO_FORWARD = 11;
@@ -203,14 +202,14 @@ int distance =0;
 void loop()
 {
 
-  delay(100);
+  delay(1);
   pos = changehead(&increment);
   distance = checkObstacles();
   
   if (distance <= 5 && !stopped)
   {
-    Serial.print(distance);
-    Serial.println(" centimeters");
+    //Serial.print(distance);
+    //Serial.println(" centimeters");
     stopped = true;
     stop();
    
@@ -224,17 +223,17 @@ void loop()
     if (pos >= 0 && pos <= 45)
     {
       STATE = GO_RIGHT;
-      Serial.print("D>5: State set as GO_RIGHT ");
+      //Serial.print("D>5: State set as GO_RIGHT ");
     }
     else if (pos >= 45 && pos <= 135)
     {
       STATE = GO_FORWARD;
-      Serial.print("D>5: State set as GO_FORWARD ");
+      //Serial.print("D>5: State set as GO_FORWARD ");
     }
     else if (pos >= 135 && pos <= 185)
     {
       STATE = GO_LEFT;
-      Serial.print("D>5: State set as GO_LEFT ");
+      //Serial.print("D>5: State set as GO_LEFT ");
     }
   }else if  (distance <= 5 && stopped)
   {
@@ -248,22 +247,22 @@ void loop()
   {
 
   case GO_FORWARD:
-    Serial.print("GO_FORWARD ");
+    //Serial.print("GO_FORWARD ");
     moveforward();
     break;
 
   case GO_LEFT:
-    Serial.print("GO_LEFT ");
+    //Serial.print("GO_LEFT ");
     move_left();
     break;
 
   case GO_RIGHT:
-    Serial.print("GO_RIGHT ");
+    //Serial.print("GO_RIGHT ");
     move_right();
     break;
 
   case GO_BACK:
-    Serial.print("GO_BACK ");
+    //Serial.print("GO_BACK ");
     move_backwards();
     break;
   }

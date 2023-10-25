@@ -99,11 +99,11 @@ int changehead(int *prev_incr)
   // Get the current position of the servo
   current_pos = myservo.read();
 
-  if (current_pos >= 180 && *prev_incr == 1)
+  if (current_pos >= 150 && *prev_incr == 1)
   {
     increment = -1;
   }
-  else if (current_pos <= 0 && *prev_incr == -1)
+  else if (current_pos <= 50 && *prev_incr == -1)
   {
     increment = 1;
   }
@@ -116,7 +116,8 @@ int changehead(int *prev_incr)
   *prev_incr = increment;
 
   myservo.write(current_pos + increment);
-  
+  delay(8);
+
   return current_pos;
 }
 
@@ -196,77 +197,84 @@ int increment = 1;
 bool stopped = false;
 int pos = 0;
 int distance = 0;
+
 void loop()
 {
+   pos = changehead(&increment);
+   unsigned long stopTime = 0;  // Timestamp for when the rover first stops
+   unsigned long backwardTime = 0;  // Timestamp for when the rover starts moving backward
+
 
   while (true)
   {
-    if (stopped) {
-      pos = changehead(&increment);
-    
-    }
+ 
+    pos = changehead(&increment);
     distance = checkObstacles();
 
-    if (distance <= 5 && !stopped)
+    if (distance <= 15 && !stopped)
     {
-      Serial.print(distance);
-      Serial.println(" centimeters");
-      stopped = true;
-      stop();
-    }
-
-    if (distance > 5)
-    {
-
-      if (stopped)
-      {
-        set_speed(150);
         Serial.print(distance);
-        Serial.println(" centimeters Starting againg");
-      }
-      stopped = false;
-      STATE = GO_FORWARD;
-      // Serial.print(pos);
-      // Serial.println(" degrees");
-      if (pos >= 0 && pos <= 45)
-      {
-        STATE = GO_RIGHT;
-        // Serial.print("D>5: State set as GO_RIGHT ");
-      }
-      else if (pos >= 135 && pos <= 185)
-      {
-        STATE = GO_LEFT;
-        // Serial.print("D>5: State set as GO_LEFT ");
-      }
-    }
-    if (distance <= 5 && stopped)
-    {
-      set_speed(150);
-      STATE = GO_BACK;
+        Serial.println(" centimeters");
+        stop();
+        stopped = true;
+        stopTime = millis();
     }
 
+    while (distance <= 15 && (millis() - stopTime <= 10000))
+    {
+      // try for 5 seconds
+      pos = changehead(&increment);
+      distance = checkObstacles();
+    }
+
+    if (stopped) {
+      set_speed(150);
+      Serial.print(distance);
+      Serial.println(" centimeters Starting again");
+    }
+
+    if (distance <15) {
+      STATE = GO_BACK;
+      if (millis() - stopTime >= 25000){
+        stopTime = millis();
+      }
+    }else if (pos >= 0 && pos <= 45){
+      STATE = GO_RIGHT;
+      stopped = false;
+    }
+    else if (pos > 45 && pos <= 135){
+        STATE = GO_FORWARD;
+        stopped = false;
+    }
+    else if (pos > 135 && pos <= 185){
+      STATE = GO_LEFT;
+      stopped = false;
+    }
+
+    
+
+
+
+    // Execute the movement
     switch (STATE)
     {
-
     case GO_FORWARD:
-      // Serial.print("GO_FORWARD ");
       moveforward();
       break;
 
     case GO_LEFT:
-      // Serial.print("GO_LEFT ");
       move_left();
       break;
 
     case GO_RIGHT:
-      // Serial.print("GO_RIGHT ");
       move_right();
       break;
 
     case GO_BACK:
-      // Serial.print("GO_BACK ");
       move_backwards();
       break;
     }
+    
+
   }
 }
